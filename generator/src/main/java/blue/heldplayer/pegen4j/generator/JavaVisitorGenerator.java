@@ -1,5 +1,6 @@
 package blue.heldplayer.pegen4j.generator;
 
+import blue.heldplayer.pegen4j.peg.ast.RuleFlag;
 import blue.heldplayer.pegen4j.unit.AltUnit;
 import blue.heldplayer.pegen4j.unit.ConcreteNodeElement;
 import blue.heldplayer.pegen4j.unit.GrammarUnit;
@@ -103,6 +104,7 @@ public final class JavaVisitorGenerator {
       out.line("import " + pkg + ";");
     }
     out.line();
+    out.line("import " + Constants.QUALIFIED_BASE_NODE + ";");
     out.line("import " + Constants.QUALIFIED_PATTERN_TOKEN_NODE + ";");
     out.line("import " + Constants.QUALIFIED_STRING_TOKEN_NODE + ";");
     out.line();
@@ -131,14 +133,14 @@ public final class JavaVisitorGenerator {
     out.line("public " + astType + " visit" + pascalName + "(" + pascalName + "Context λ_ctx) {");
     try (var _ = out.withIndentation()) {
       if (rule.getAlts().size() == 1 && rule.getAlts().getFirst().getLabelName() == null) {
-        generateAltBody(out, rule.getAlts().getFirst(), "λ_ctx", "return");
+        generateAltBody(out, rule, rule.getAlts().getFirst(), "λ_ctx", "return");
       } else {
         out.line("return switch (λ_ctx) {");
         try (var _ = out.withIndentation()) {
           for (var alt : rule.getAlts()) {
             out.line("case " + alt.getQualifiedContextClassName() + " λ_alt -> {");
             try (var _ = out.withIndentation()) {
-              generateAltBody(out, alt, "λ_alt", "yield");
+              generateAltBody(out, rule, alt, "λ_alt", "yield");
             }
             out.line("}");
           }
@@ -149,7 +151,7 @@ public final class JavaVisitorGenerator {
     out.line("}");
   }
 
-  private void generateAltBody(FileGenerator out, AltUnit alt, String receiver, String returnOrYield) {
+  private void generateAltBody(FileGenerator out, RuleUnit rule, AltUnit alt, String receiver, String returnOrYield) {
     for (var field : alt.getContextFields()) {
       out.line(binding(field, receiver));
     }
@@ -164,7 +166,11 @@ public final class JavaVisitorGenerator {
       }
     }
 
-    out.line(returnOrYield + " " + returnValue + ";");
+    if (rule.getNode().flags.contains(RuleFlag.STORE_LOCATION)) {
+      out.line(returnOrYield + " BaseNode.copyLocation(" + returnValue + ", λ_ctx);");
+    } else {
+      out.line(returnOrYield + " " + returnValue + ";");
+    }
   }
 
   private String binding(ConcreteNodeElement f, String receiver) {

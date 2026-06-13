@@ -24,7 +24,7 @@ public class Pegen4JParser extends AbstractParser {
   public static final TokenType[] TOKENS = new TokenType[]{NAME, STRING, PATTERN, TYPE, ACTION};
   public static final TokenType[] IGNORED_TOKENS = new TokenType[]{WS, COMMENT};
   public static final String[] KEYWORDS = new String[]{};
-  public static final String[] SOFT_KEYWORDS = new String[]{};
+  public static final String[] SOFT_KEYWORDS = new String[]{"store_location"};
   public static final String[] SYNC_TOKENS = new String[]{";"};
 
   public Pegen4JParser(URI sourceUri, CharSequence sourceString) {
@@ -195,17 +195,29 @@ public class Pegen4JParser extends AbstractParser {
     return super.memoized("rule", () -> {
       var λ_mark = super.mark();
       var λ_cut = false;
-      // NAME TYPE ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, alts, TYPE) }
+      // NAME TYPE? flags=rule_flag* ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, flags, alts, TYPE) }
       do {
-        var λ_ctx = new RuleContext.Typed();
+        var λ_ctx = new RuleContext();
         var λv_NAME = super.expect(Pegen4JParser.NAME);
         if (λv_NAME == null) break;
         λ_ctx.NAME = λv_NAME;
         λ_ctx.add(λv_NAME);
         var λv_TYPE = super.expect(Pegen4JParser.TYPE);
-        if (λv_TYPE == null) break;
+        if (λv_TYPE != null) λ_ctx.add(λv_TYPE);
         λ_ctx.TYPE = λv_TYPE;
-        λ_ctx.add(λv_TYPE);
+        var λv_flags = new ArrayList<RuleFlagContext>();
+        while (true) {
+          var λ_m = super.mark();
+          var λe_flags = this.rule_flag();
+          if (λe_flags == null) {
+            if (super.pendingRecovery) { super.pendingRecovery = false; continue; }
+            super.reset(λ_m);
+            break;
+          }
+          λv_flags.add(λe_flags);
+          λ_ctx.add(λe_flags);
+        }
+        λ_ctx.flags = λv_flags;
         if (super.expect(":") == null) break;
         λ_cut = true;
         var λv_alts = new ArrayList<AltContext>();
@@ -233,40 +245,22 @@ public class Pegen4JParser extends AbstractParser {
       } while (false);
       if (!super.pendingRecovery) super.reset(λ_mark);
       if (λ_cut) { super.recover(SYNC_TOKENS); return null; }
-      // NAME ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, alts, null) }
+      return null;
+    });
+  }
+
+  public RuleFlagContext rule_flag() {
+    return super.memoized("rule_flag", () -> {
+      var λ_mark = super.mark();
+      // '#' "store_location" { RuleFlag.STORE_LOCATION }
       do {
-        var λ_ctx = new RuleContext.Untyped();
-        var λv_NAME = super.expect(Pegen4JParser.NAME);
-        if (λv_NAME == null) break;
-        λ_ctx.NAME = λv_NAME;
-        λ_ctx.add(λv_NAME);
-        if (super.expect(":") == null) break;
-        λ_cut = true;
-        var λv_alts = new ArrayList<AltContext>();
-        var λf_alts = this.alt();
-        if (λf_alts == null) break;
-        λv_alts.add(λf_alts);
-        λ_ctx.add(λf_alts);
-        while (true) {
-          var λ_m = super.mark();
-          var λs_alts = super.expect("|");
-          if (λs_alts == null) { super.reset(λ_m); break; }
-          var λe_alts = this.alt();
-          if (λe_alts == null) {
-            if (super.pendingRecovery) { super.pendingRecovery = false; continue; }
-            super.reset(λ_m);
-            break;
-          }
-          λv_alts.add(λe_alts);
-          λ_ctx.add(λe_alts);
-        }
-        λ_ctx.alts = λv_alts;
-        if (super.expect(";") == null) break;
+        var λ_ctx = new RuleFlagContext();
+        if (super.expect("#") == null) break;
+        if (super.expect("store_location") == null) break;
         super.finish(λ_ctx, λ_mark);
         return λ_ctx;
       } while (false);
       if (!super.pendingRecovery) super.reset(λ_mark);
-      if (λ_cut) { super.recover(SYNC_TOKENS); return null; }
       return null;
     });
   }

@@ -10,6 +10,7 @@ public interface Pegen4JParserVisitor {
   default Object visitMeta(MetaContext ctx) { visitChildren(ctx); return null; }
   default Object visitToken(TokenContext ctx) { visitChildren(ctx); return null; }
   default Object visitRule(RuleContext ctx) { visitChildren(ctx); return null; }
+  default Object visitRuleFlag(RuleFlagContext ctx) { visitChildren(ctx); return null; }
   default Object visitAlt(AltContext ctx) { visitChildren(ctx); return null; }
   default Object visitAction(ActionContext ctx) { visitChildren(ctx); return null; }
   default Object visitContextName(ContextNameContext ctx) { visitChildren(ctx); return null; }
@@ -24,6 +25,7 @@ public interface Pegen4JParserVisitor {
       case MetaContext c -> visitMeta(c);
       case TokenContext c -> visitToken(c);
       case RuleContext c -> visitRule(c);
+      case RuleFlagContext c -> visitRuleFlag(c);
       case AltContext c -> visitAlt(c);
       case ActionContext c -> visitAction(c);
       case ContextNameContext c -> visitContextName(c);

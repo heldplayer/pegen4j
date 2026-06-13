@@ -5,16 +5,9 @@ import blue.heldplayer.pegen4j.parser.node.PatternTokenNode;
 import java.util.List;
 
 @SuppressWarnings("ALL")
-public sealed abstract class RuleContext extends blue.heldplayer.pegen4j.parser.node.RuleContext {
-
-  public static final class Typed extends RuleContext {
-    public PatternTokenNode NAME;
-    public PatternTokenNode TYPE;
-    public List<AltContext> alts;
-  }
-
-  public static final class Untyped extends RuleContext {
-    public PatternTokenNode NAME;
-    public List<AltContext> alts;
-  }
+public final class RuleContext extends blue.heldplayer.pegen4j.parser.node.RuleContext {
+  public PatternTokenNode NAME;
+  public PatternTokenNode TYPE;
+  public List<RuleFlagContext> flags;
+  public List<AltContext> alts;
 }

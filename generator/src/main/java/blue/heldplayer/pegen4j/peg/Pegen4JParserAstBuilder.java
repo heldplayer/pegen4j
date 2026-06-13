@@ -4,6 +4,7 @@ package blue.heldplayer.pegen4j.peg;
 import blue.heldplayer.pegen4j.peg.cst.*;
 import blue.heldplayer.pegen4j.peg.ast.*;
 
+import blue.heldplayer.pegen4j.parser.node.BaseNode;
 import blue.heldplayer.pegen4j.parser.node.PatternTokenNode;
 import blue.heldplayer.pegen4j.parser.node.StringTokenNode;
 
@@ -65,26 +66,22 @@ public class Pegen4JParserAstBuilder implements Pegen4JParserVisitor {
   }
   @Override
   public RuleDefinition visitRule(RuleContext λ_ctx) {
-    return switch (λ_ctx) {
-      case RuleContext.Typed λ_alt -> {
-        var NAME = λ_alt.NAME;
-        var TYPE = λ_alt.TYPE;
-        var alts = λ_alt.alts.stream().map(c -> visitAlt(c)).collect(Collectors.toList());
-        yield new RuleDefinition(NAME, alts, TYPE);
-      }
-      case RuleContext.Untyped λ_alt -> {
-        var NAME = λ_alt.NAME;
-        var alts = λ_alt.alts.stream().map(c -> visitAlt(c)).collect(Collectors.toList());
-        yield new RuleDefinition(NAME, alts, null);
-      }
-    };
+    var NAME = λ_ctx.NAME;
+    var TYPE = λ_ctx.TYPE;
+    var flags = λ_ctx.flags.stream().map(c -> visitRuleFlag(c)).collect(Collectors.toList());
+    var alts = λ_ctx.alts.stream().map(c -> visitAlt(c)).collect(Collectors.toList());
+    return new RuleDefinition(NAME, flags, alts, TYPE);
+  }
+  @Override
+  public RuleFlag visitRuleFlag(RuleFlagContext λ_ctx) {
+    return RuleFlag.STORE_LOCATION;
   }
   @Override
   public Alt visitAlt(AltContext λ_ctx) {
     var items = λ_ctx.items.stream().map(c -> visitNamedItem(c)).collect(Collectors.toList());
     var action = Optional.ofNullable(λ_ctx.action).map(c -> visitAction(c)).orElse(null);
     var context_name = Optional.ofNullable(λ_ctx.context_name).map(c -> visitContextName(c)).orElse(null);
-    return new Alt(items, action, context_name);
+    return BaseNode.copyLocation(new Alt(items, action, context_name), λ_ctx);
   }
   @Override
   public PatternTokenNode visitAction(ActionContext λ_ctx) {

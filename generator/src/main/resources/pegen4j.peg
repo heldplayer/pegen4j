@@ -33,11 +33,14 @@ meta[Meta]
 token[TokenDefinition]: NAME ':' PATTERN { new TokenDefinition(NAME, PATTERN) } ;
 
 rule[RuleDefinition]
-  : NAME TYPE ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, alts, TYPE) } # Typed
-  | NAME ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, alts, null) } # Untyped
+  : NAME TYPE? flags=rule_flag* ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, flags, alts, TYPE) }
   ;
 
-alt[Alt]
+rule_flag[RuleFlag]
+  : '#' "store_location" { RuleFlag.STORE_LOCATION }
+  ;
+
+alt[Alt] #store_location
   : items=named_item+ action? context_name? { new Alt(items, action, context_name) }
   ;
 

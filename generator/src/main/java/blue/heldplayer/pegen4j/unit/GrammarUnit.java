@@ -141,6 +141,13 @@ public final class GrammarUnit {
     var contextClassName = StringUtils.toPascalCase(rule.name.string()) + "Context";
     var alts = new ArrayList<AltUnit>();
 
+    var encounteredFlags = new HashSet<RuleFlag>();
+    for (var flag : rule.flags) {
+      if (!encounteredFlags.add(flag)) {
+        this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.ERROR, rule.name.toSourceLocation(), "duplicate flag: " + flag));
+      }
+    }
+
     if (rule.alts.size() == 1 && rule.alts.getFirst().labelName() == null) {
       var alt = rule.alts.getFirst();
       alts.add(new AltUnit(alt, contextClassName, contextClassName, deriveItems(alt)));

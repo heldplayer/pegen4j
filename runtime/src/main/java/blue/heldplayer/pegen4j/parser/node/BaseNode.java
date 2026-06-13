@@ -14,6 +14,11 @@ public sealed abstract class BaseNode implements SourceLocationProvider permits 
     this.location = new SourceLocation(uri, startPos, endPos, startLine, startColumn, endLine, endColumn);
   }
 
+  public static <T extends BaseNode> T copyLocation(T into, BaseNode from) {
+    ((BaseNode) into).location = from.location;
+    return into;
+  }
+
   @Override
   public @Nullable SourceLocation toSourceLocation() {
     return this.location;

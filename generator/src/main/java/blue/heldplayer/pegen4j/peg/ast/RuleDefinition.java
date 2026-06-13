@@ -12,11 +12,13 @@ import java.util.function.Predicate;
 public final class RuleDefinition extends GrammarElement {
 
   public final StringTokenNode name;
+  public final List<RuleFlag> flags;
   public final List<Alt> alts;
   public final @Nullable StringTokenNode type;
 
-  public RuleDefinition(StringTokenNode name, List<Alt> alts, @Nullable StringTokenNode type) {
+  public RuleDefinition(StringTokenNode name, List<RuleFlag> flags, List<Alt> alts, @Nullable StringTokenNode type) {
     this.name = name;
+    this.flags = flags;
     this.alts = alts;
     this.type = type;
   }
