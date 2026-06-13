@@ -19,13 +19,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class AstBuilderTests {
+public class GeneratedJavaSourcesTests {
 
   static Path BASE_DIR;
 
   @BeforeAll
   static void init() throws URISyntaxException {
-    var dirUrl = AstBuilderTests.class.getClassLoader().getResource("ast_builder_tests");
+    var dirUrl = GeneratedJavaSourcesTests.class.getClassLoader().getResource("generated_java_sources_tests");
     Assertions.assertNotNull(dirUrl);
     BASE_DIR = Path.of(dirUrl.toURI());
   }
@@ -55,16 +55,17 @@ public class AstBuilderTests {
       Assertions.fail(DiagnosticMessage.render(problems, grammarSource, false));
     }
 
-    var targetFile = grammarUnit.optionValuesByName.get("class_name").getFirst() + "AstBuilder";
-    System.out.println(targetFile);
-
     var parserGenerator = new JavaParserGenerator(grammarUnit);
     var files = new LinkedHashMap<>(parserGenerator.generateFiles());
     files.putAll(new JavaVisitorGenerator(parserGenerator).generateFiles());
 
-    var expectedSource = Files.readString(sourceFile.resolveSibling(targetFile + ".java"));
+    for (var targetFile : grammarUnit.optionValuesByName.getOrDefault("test_validate_file", List.of())) {
+      System.out.println(targetFile);
 
-    Assertions.assertEquals(expectedSource, files.get(targetFile));
+      var expectedSource = Files.readString(sourceFile.resolveSibling(targetFile + ".java"));
+
+      Assertions.assertEquals(expectedSource, files.get(targetFile), "Difference in file: " + targetFile);
+    }
   }
 
   static Stream<Path> testGeneratedOutputParametersSource() throws IOException {

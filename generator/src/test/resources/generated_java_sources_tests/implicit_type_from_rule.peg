@@ -1,4 +1,5 @@
 @option class_name "ImplicitTypeFromRule"
+@option test_validate_file "ImplicitTypeFromRuleAstBuilder"
 
 # Implicit type of SomeType
 rule_atom: typed_rule ;
