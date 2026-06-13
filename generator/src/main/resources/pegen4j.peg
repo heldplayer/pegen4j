@@ -5,11 +5,14 @@
 NAME: /(?i)[a-z_][a-z0-9_]*/
 STRING: /'(?:[^'\n\r\\]|\\[tbnrf'"\\])+'|"(?:[^"\n\r\\]|\\[tbnrf'"\\])+"/
 PATTERN: /\/((?:[^\r\n\[/\\]|\\.|\[(?:[^\r\n\]\\]|\\.)*\])+)\//
-WS: /\s+/
 TYPE: /\[[^\[\]]*\]/
 ACTION: /\{[^{}]*\}/
 
+WS: /\s+/
+COMMENT: /#.*?(?:\n|$)/
+
 @ignore WS
+@ignore COMMENT
 @recover ';'
 
 grammar_unit[Grammar]: grammar_elements=grammar_element* $ { new Grammar(grammar_elements) } ;
