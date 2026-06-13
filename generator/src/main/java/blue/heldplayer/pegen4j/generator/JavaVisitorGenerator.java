@@ -97,6 +97,7 @@ public final class JavaVisitorGenerator {
       out.line("import " + pkg + ";");
     }
     out.line();
+    out.line("import java.util.List;");
     out.line("import java.util.Optional;");
     out.line("import java.util.stream.Collectors;");
     out.line();
