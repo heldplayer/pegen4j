@@ -59,12 +59,15 @@ public class GeneratedJavaSourcesTests {
     var files = new LinkedHashMap<>(parserGenerator.generateFiles());
     files.putAll(new JavaVisitorGenerator(parserGenerator).generateFiles());
 
+    System.out.println(files.keySet());
+
     for (var targetFile : grammarUnit.optionValuesByName.getOrDefault("test_validate_file", List.of())) {
       System.out.println(targetFile);
 
-      var expectedSource = Files.readString(sourceFile.resolveSibling(targetFile + ".java"));
+      var targetPath = sourceFile.resolveSibling(targetFile + ".java");
+      var expectedSource = Files.exists(targetPath) ? Files.readString(targetPath) : "<FILE NOT FOUND>";
 
-      Assertions.assertEquals(expectedSource, files.get(targetFile), "Difference in file: " + targetFile);
+      Assertions.assertLinesMatch(expectedSource.lines(), files.get(targetFile).lines(), "Difference in file: " + targetFile);
     }
   }
 

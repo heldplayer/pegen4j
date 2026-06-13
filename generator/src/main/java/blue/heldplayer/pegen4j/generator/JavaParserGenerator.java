@@ -143,10 +143,19 @@ public final class JavaParserGenerator {
         if (rule.hasCut()) {
           out.line("var λ_cut = false;");
         }
+        var altsAlwaysReturn = false;
         for (AltUnit alt : rule.getAlts()) {
           generateAltParser(out, alt);
+          if (alt.alwaysReturns()) {
+            altsAlwaysReturn = true;
+            break;
+          }
         }
-        out.line("return null;");
+        if (!altsAlwaysReturn) {
+          out.line("return null;");
+        } else {
+          out.line("// unreachable");
+        }
       }
       out.line("});");
     }
@@ -165,6 +174,9 @@ public final class JavaParserGenerator {
       out.line("return λ_ctx;");
     }
     out.line("} while (false);");
+    if (alt.alwaysReturns()) {
+      return;
+    }
     // While a recovery is pending, do not backtrack: the synchronized position
     // must propagate up to the enclosing repetition that will consume it.
     if (this.grammarUnit.recoveryEnabled()) {

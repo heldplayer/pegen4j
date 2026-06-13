@@ -147,11 +147,19 @@ public final class GrammarUnit {
     } else {
       var seenLabels = new HashSet<String>();
       var labeledCount = 0;
+      var previousAltAlwaysReturns = false;
       for (var i = 0; i < rule.alts.size(); i++) {
         var alt = rule.alts.get(i);
 
+        if (previousAltAlwaysReturns) {
+          this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.ERROR, alt.toSourceLocation(), "unreachable alternative"));
+        }
+
         var altContextName = alt.labelName() != null ? alt.labelName() : "Alt" + (i + 1);
-        alts.add(new AltUnit(alt, altContextName, contextClassName + "." + altContextName, deriveItems(alt)));
+        var altUnit = new AltUnit(alt, altContextName, contextClassName + "." + altContextName, deriveItems(alt));
+        alts.add(altUnit);
+
+        previousAltAlwaysReturns |= altUnit.alwaysReturns();
 
         var label = alt.labelName();
         if (label != null) {

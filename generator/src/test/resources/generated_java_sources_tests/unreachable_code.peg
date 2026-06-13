@@ -1,0 +1,10 @@
+@option class_name "UnreachableCode"
+@option test_validate_file "UnreachableCode"
+
+rule_opt
+  : 'FOOBAR'?
+  ;
+
+rule_repeat0
+  : 'FOOBAR'*
+  ;

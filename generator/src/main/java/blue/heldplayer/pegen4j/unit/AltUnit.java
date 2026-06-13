@@ -1,6 +1,7 @@
 package blue.heldplayer.pegen4j.unit;
 
 import blue.heldplayer.pegen4j.peg.ast.Alt;
+import blue.heldplayer.pegen4j.peg.ast.Item;
 import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +52,19 @@ public final class AltUnit {
 
   public boolean hasCut() {
     return this.node.hasCut();
+  }
+
+  public boolean alwaysReturns() {
+    for (var itemUnit : this.items) {
+      switch (itemUnit.item().target()) {
+        case Item.Cut _, Item.Repeat0 _, Item.Opt _ -> {
+        }
+        default -> {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
 }
