@@ -81,39 +81,43 @@ public final class DiagnosticMessage {
       return severityText + " " + this.message + "\n";
     }
 
-    var slice = lineAt(source, this.location.startPos());
-    return """
-      %s:%d:%d: %s %s
-       %s
-      %s%s
-      """.formatted(
-      this.location.uri() != null ? this.location.uri().toString() : "<input>",
-      this.location.startLine(),
-      slice.caretColumn() + 1,
-      severityText,
-      this.message,
-      slice.text(),
-      " ".repeat(slice.caretColumn() + 1),
-      outputColor ? COLOR_GREEN + "^" + COLOR_RESET : "^"
-    );
+    var sourceLocation = this.location.uri() != null ? this.location.uri().toString() : "<input>";
+    var slices = getLines(source, this.location);
+
+    return sourceLocation + ":" + this.location.startLine() + ":" + this.location.startColumn() + ": " + severityText
+      + " " + this.message + "\n" +
+      slices.stream().map(slice -> {
+        var startPos = slice.columnStart() == -1 ? 1 : slice.columnStart();
+        var startChar = slice.columnStart() == -1 ? "~" : "^";
+        var colorPre = outputColor ? COLOR_GREEN : "";
+        var colorPost = outputColor ? COLOR_RESET : "";
+        return " " + slice.text() + "\n " + " ".repeat(startPos - 1)
+          + colorPre + startChar + "~".repeat(slice.columnEnd() - startPos) + colorPost;
+      }).collect(Collectors.joining("\n"));
   }
 
-  private record LineSlice(String text, int caretColumn) {
+  private record LineSlice(String text, int columnStart, int columnEnd) {
   }
 
-  private static LineSlice lineAt(CharSequence source, int position) {
+  private static List<LineSlice> getLines(CharSequence source, SourceLocation location) {
     var len = source.length();
-    var p = Math.clamp(position, 0, len);
-    var start = p;
-    while (start > 0 && source.charAt(start - 1) != '\n') {
-      start--;
+    var p = Math.clamp(location.startPos(), 0, len);
+    var result = new ArrayList<LineSlice>();
+    while (p < location.endPos() && p < len) {
+      var lineStart = p;
+      while (lineStart > 0 && source.charAt(lineStart - 1) != '\n') {
+        lineStart--;
+      }
+      var lineEnd = p;
+      while (lineEnd < len && source.charAt(lineEnd) != '\n') {
+        lineEnd++;
+      }
+      var nextP = lineEnd + 1;
+      var line = source.subSequence(lineStart, lineEnd).toString().stripTrailing();
+      result.add(new LineSlice(line, result.isEmpty() ? p - lineStart : -1, nextP < location.endPos() ? line.length() : lineEnd - lineStart));
+      p = nextP;
     }
-    var end = p;
-    while (end < len && source.charAt(end) != '\n') {
-      end++;
-    }
-    var displayEnd = (end > start && source.charAt(end - 1) == '\r') ? end - 1 : end;
-    return new LineSlice(source.subSequence(start, displayEnd).toString(), p - start);
+    return result;
   }
 
 }
