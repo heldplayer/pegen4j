@@ -93,6 +93,48 @@ public final class GrammarUnit {
         }
       }
     }
+
+    resolveTypes();
+  }
+
+  private void resolveTypes() {
+    for (var rule : this.ruleByName.values()) {
+      rule.setTypeName(resolveType(rule, new HashSet<>()));
+    }
+  }
+
+  private String resolveType(RuleUnit rule, Set<String> visiting) {
+    var explicit = rule.getNode().typeName();
+    if (explicit != null) {
+      return explicit;
+    }
+    if (!visiting.add(rule.getName())) {
+      return "Object";
+    }
+    try {
+      String inferred = null;
+      for (var alt : rule.getAlts()) {
+        var fields = alt.getContextFields();
+        var produced = alt.getAction() == null && fields.size() == 1 ? astTypeOf(fields.getFirst(), visiting) : "Object";
+        if (inferred == null) {
+          inferred = produced;
+        } else if (!inferred.equals(produced)) {
+          return "Object";
+        }
+      }
+      return inferred == null ? "Object" : inferred;
+    } finally {
+      visiting.remove(rule.getName());
+    }
+  }
+
+  private String astTypeOf(ConcreteNodeElement field, Set<String> visiting) {
+    if (field.terminal()) {
+      return field.type();
+    }
+    var ref = this.ruleByName.get(field.ref());
+    var element = ref != null ? resolveType(ref, visiting) : "Object";
+    return field.shape() == ConcreteNodeElement.Shape.LIST ? "List<" + element + ">" : element;
   }
 
   private RuleUnit buildRule(RuleDefinition rule) {

@@ -2,6 +2,7 @@ package blue.heldplayer.pegen4j.unit;
 
 import blue.heldplayer.pegen4j.peg.ast.RuleDefinition;
 import org.jetbrains.annotations.NotNullByDefault;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -11,6 +12,9 @@ public final class RuleUnit {
   private final RuleDefinition node;
   private final String contextClassName;
   private final List<AltUnit> alts;
+
+  @Nullable
+  private String typeName;
 
   public RuleUnit(RuleDefinition node, String contextClassName, List<AltUnit> alts) {
     this.node = node;
@@ -34,25 +38,13 @@ public final class RuleUnit {
     return this.alts;
   }
 
+  public void setTypeName(String typeName) {
+    this.typeName = typeName;
+  }
+
   public String getTypeName() {
-    var typeName = this.node.typeName();
-    if (typeName != null) {
-      return typeName;
-    }
-    String inferred = null;
-    for (var alt : this.alts) {
-      var fields = alt.getContextFields();
-      var produced = alt.getAction() == null && fields.size() == 1 ? fields.getFirst().type() : "Object";
-      if (inferred == null) {
-        inferred = produced;
-      } else if (!inferred.equals(produced)) {
-        return "Object";
-      }
-    }
-    if (inferred == null) {
-      return "Object";
-    }
-    return inferred;
+    assert this.typeName != null : "type not resolved";
+    return this.typeName;
   }
 
   public boolean hasCut() {
