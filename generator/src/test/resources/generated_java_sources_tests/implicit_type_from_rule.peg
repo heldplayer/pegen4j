@@ -1,19 +1,19 @@
 @option class_name "ImplicitTypeFromRule"
 @option test_validate_file "ImplicitTypeFromRuleAstBuilder"
 
-# Implicit type of SomeType
+// Implicit type of SomeType
 rule_atom: typed_rule ;
 
-# Implicit type of SomeType
+// Implicit type of SomeType
 rule_opt: typed_rule? ;
 
-# Implicit type of List<SomeType>
+// Implicit type of List<SomeType>
 rule_repeat0: typed_rule* ;
 
-# Implicit type of List<SomeType>
+// Implicit type of List<SomeType>
 rule_repeat1: typed_rule+ ;
 
-# Implicit type of List<SomeType>
+// Implicit type of List<SomeType>
 rule_gather: ','.typed_rule+ ;
 
 typed_rule[SomeType]

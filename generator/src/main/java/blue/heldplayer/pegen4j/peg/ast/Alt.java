@@ -15,10 +15,6 @@ public final class Alt extends CustomNode {
   public final @Nullable StringTokenNode actionBlock;
   public final @Nullable StringTokenNode contextName;
 
-  public Alt(List<Item> items, @Nullable StringTokenNode actionBlock) {
-    this(items, actionBlock, null);
-  }
-
   public Alt(List<Item> items, @Nullable StringTokenNode actionBlock, @Nullable StringTokenNode contextName) {
     this.items = items;
     this.actionBlock = actionBlock;

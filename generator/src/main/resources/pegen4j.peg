@@ -9,7 +9,7 @@ TYPE: /\[[^\[\]]*\]/
 ACTION: /\{[^{}]*\}/
 
 WS: /\s+/
-COMMENT: /#.*?(?:\n|$)/
+COMMENT: /\/\/.*?(?:\n|$)/
 
 @ignore WS
 @ignore COMMENT

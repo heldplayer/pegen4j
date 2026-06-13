@@ -19,10 +19,10 @@ public class Pegen4JParser extends AbstractParser {
   public static final TokenType TYPE = new TokenType("TYPE", "\\[[^\\[\\]]*\\]");
   public static final TokenType ACTION = new TokenType("ACTION", "\\{[^{}]*\\}");
   public static final TokenType WS = new TokenType("WS", "\\s+");
-  public static final TokenType LINE_COMMENT = new TokenType("LINE_COMMENT", "#.*?(?:\\n|$)");
+  public static final TokenType COMMENT = new TokenType("COMMENT", "\\/\\/.*?(?:\\n|$)");
 
   public static final TokenType[] TOKENS = new TokenType[]{NAME, STRING, PATTERN, TYPE, ACTION};
-  public static final TokenType[] IGNORED_TOKENS = new TokenType[]{WS, LINE_COMMENT};
+  public static final TokenType[] IGNORED_TOKENS = new TokenType[]{WS, COMMENT};
   public static final String[] KEYWORDS = new String[]{};
   public static final String[] SOFT_KEYWORDS = new String[]{};
   public static final String[] SYNC_TOKENS = new String[]{";"};
