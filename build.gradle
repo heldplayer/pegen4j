@@ -1,6 +1,6 @@
 allprojects {
     group = 'blue.heldplayer'
-    version = '2026.5.1-SNAPSHOT'
+    version = '0.0.1-SNAPSHOT'
 
     repositories {
         mavenCentral()
