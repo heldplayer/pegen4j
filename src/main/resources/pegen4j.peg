@@ -1,0 +1,66 @@
+@option package "blue.heldplayer.pegen4j.peg"
+@option class_name "Pegen4JParser"
+@option import "blue.heldplayer.pegen4j.peg.ast.*"
+
+NAME: /(?i)[a-z_][a-z0-9_]*/
+STRING: /'(?:[^'\n\r\\]|\\[tbnrf'"\\])+'|"(?:[^"\n\r\\]|\\[tbnrf'"\\])+"/
+PATTERN: /\/((?:[^\r\n\[/\\]|\\.|\[(?:[^\r\n\]\\]|\\.)*\])+)\//
+WS: /\s+/
+TYPE: /\[[^\[\]]*\]/
+ACTION: /\{[^{}]*\}/
+
+@ignore WS
+@recover ';'
+
+grammar_unit[Grammar]: grammar_elements=grammar_element* $ { new Grammar(grammar_elements) } ;
+
+grammar_element[GrammarElement]
+  : meta
+  | token
+  | rule
+  ;
+
+meta[Meta]
+  : '@keyword' STRING { new Meta.Keyword(STRING) } # Keyword
+  | '@ignore' NAME { new Meta.Ignore(NAME) } # Ignore
+  | '@option' NAME STRING { new Meta.Option(NAME, STRING) } # Option
+  | '@recover' tokens=STRING+ { new Meta.Recover(tokens) } # Recover
+  ;
+
+token[TokenDefinition]: NAME ':' PATTERN { new TokenDefinition(NAME, PATTERN) } ;
+
+rule[RuleDefinition]
+  : NAME TYPE ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, alts, TYPE) } # Typed
+  | NAME ':' ~ alts='|'.alt+ ';' { new RuleDefinition(NAME, alts, null) } # Untyped
+  ;
+
+alt[Alt]
+  : items=named_item+ action? context_name? { new Alt(items, action, context_name) }
+  ;
+
+action: ACTION ;
+
+context_name: '#' NAME ;
+
+named_item[Item]
+  : NAME '=' ~ item { new Item.Named(NAME, item) } # Named
+  | item # Unnamed
+  | '&' '&' ~ atom { new Item.Forced(atom) } # Forced
+  | '&' ~ atom { new Item.PositiveLookahead(atom) } # PositiveLookahead
+  | '!' ~ atom { new Item.NegativeLookahead(atom) } # NegativeLookahead
+  | '~' { new Item.Cut() } # Cut
+  | '$' { new Item.EofMarker() } # Eof
+  ;
+
+item[Item]
+  : atom '?' { new Item.Opt(atom) } # Opt
+  | atom '*' { new Item.Repeat0(atom) } # Repeat0
+  | atom '+' { new Item.Repeat1(atom) } # Repeat1
+  | sep=atom '.' node=atom '+' { new Item.Gather(node, sep) } # Gather
+  | atom # Atom
+  ;
+
+atom[Item.Atom]
+  : NAME { new Item.NameLeaf(NAME) } # Name
+  | STRING { new Item.StringLeaf(STRING) } # String
+  ;

@@ -1,0 +1,68 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+group = 'blue.heldplayer'
+version = '2026.5.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.jetbrains:annotations:26.0.2-1'
+    implementation 'org.apache.commons:commons-text:1.15.0'
+    implementation 'commons-cli:commons-cli:1.11.0'
+
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.register('generateParser', JavaExec) {
+    group = 'build'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'blue.heldplayer.pegen4j.Pegen4J'
+    args = [
+            'src/main/resources/pegen4j.peg',
+            '-o', 'src/main/java'
+    ]
+}
+
+gradlePlugin {
+    plugins {
+        create("pegen4j") {
+            id = "blue.heldplayer.pegen4j"
+            implementationClass = "blue.heldplayer.pegen4j.gradle.Pegen4JPlugin"
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url = "https://maven.pkg.github.com/heldplayer/pegen4j"
+            if (System.getenv("GITHUB_ACTOR") == null) {
+                credentials {
+                    username = System.getenv("GITHUB_USERNAME")
+                    password = System.getenv("GH_TOKEN")
+                }
+            } else {
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}
