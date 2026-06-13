@@ -1,6 +1,6 @@
 allprojects {
     group = 'blue.heldplayer'
-    version = System.getenv('RELEASE_VERSION') ?: '0.0.1-SNAPSHOT'
+    version = System.getenv('RELEASE_VERSION')?.replaceFirst('^v', '') ?: '0.0.1-SNAPSHOT'
 
     repositories {
         mavenCentral()
