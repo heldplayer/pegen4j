@@ -1,6 +1,6 @@
 allprojects {
     group = 'blue.heldplayer'
-    version = '0.0.1-SNAPSHOT'
+    version = System.getenv('RELEASE_VERSION') ?: '0.0.1-SNAPSHOT'
 
     repositories {
         mavenCentral()
@@ -21,16 +21,9 @@ subprojects {
                 maven {
                     name = 'GitHubPackages'
                     url = "https://maven.pkg.github.com/heldplayer/pegen4j"
-                    if (System.getenv("GITHUB_ACTOR") == null) {
-                        credentials {
-                            username = System.getenv("GITHUB_USERNAME")
-                            password = System.getenv("GH_TOKEN")
-                        }
-                    } else {
-                        credentials {
-                            username = System.getenv("GITHUB_ACTOR")
-                            password = System.getenv("GITHUB_TOKEN")
-                        }
+                    credentials {
+                        username = System.getenv("GITHUB_ACTOR") ?: System.getenv("GITHUB_USERNAME")
+                        password = System.getenv("GH_TOKEN")
                     }
                 }
             }
