@@ -1,13 +1,13 @@
 package blue.heldplayer.pegen4j.gradle;
 
-import blue.heldplayer.pegen4j.GrammarException;
+import blue.heldplayer.pegen4j.generator.GrammarException;
 import blue.heldplayer.pegen4j.generator.JavaParserGenerator;
 import blue.heldplayer.pegen4j.generator.JavaVisitorGenerator;
+import blue.heldplayer.pegen4j.parser.DiagnosticMessage;
 import blue.heldplayer.pegen4j.peg.Pegen4JParser;
 import blue.heldplayer.pegen4j.peg.Pegen4JParserAstBuilder;
 import blue.heldplayer.pegen4j.peg.ast.Grammar;
 import blue.heldplayer.pegen4j.unit.GrammarUnit;
-import blue.heldplayer.pegen4j.util.DiagnosticMessage;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileType;
@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+@CacheableTask
 public abstract class Pegen4JTask extends SourceTask {
 
   private final FileCollection stableSources = getProject().files((Callable<Object>) this::getSource);

@@ -1,6 +1,5 @@
 package blue.heldplayer.pegen4j.generator;
 
-import blue.heldplayer.pegen4j.Constants;
 import blue.heldplayer.pegen4j.unit.AltUnit;
 import blue.heldplayer.pegen4j.unit.ConcreteNodeElement;
 import blue.heldplayer.pegen4j.unit.GrammarUnit;

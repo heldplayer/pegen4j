@@ -1,6 +1,5 @@
-package blue.heldplayer.pegen4j.util;
+package blue.heldplayer.pegen4j.parser;
 
-import blue.heldplayer.pegen4j.parser.SourceLocation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;

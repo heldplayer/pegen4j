@@ -1,0 +1,30 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation project(':generator')
+    implementation project(':runtime')
+
+    compileOnly 'org.jetbrains:annotations:26.0.2-1'
+}
+
+gradlePlugin {
+    plugins {
+        create("pegen4j") {
+            id = "blue.heldplayer.pegen4j"
+            implementationClass = "blue.heldplayer.pegen4j.gradle.Pegen4JPlugin"
+        }
+    }
+}
+
+publishing {
+    publications {
+        withType(MavenPublication).configureEach {
+            if (name == 'pluginMaven') {
+                artifactId = 'pegen4j-gradle-plugin'
+            }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation project(':runtime')
+
+    compileOnly 'org.jetbrains:annotations:26.0.2-1'
+    implementation 'org.apache.commons:commons-text:1.15.0'
+    implementation 'commons-cli:commons-cli:1.11.0'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'pegen4j-generator'
+
+            from components.java
+        }
+    }
+}
+
+tasks.register('generateParser', JavaExec) {
+    group = 'build'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'blue.heldplayer.pegen4j.generator.Pegen4J'
+    args = [
+            file('src/main/resources/pegen4j.peg').toString(),
+            '-o', file('src/main/java').toString()
+    ]
+}

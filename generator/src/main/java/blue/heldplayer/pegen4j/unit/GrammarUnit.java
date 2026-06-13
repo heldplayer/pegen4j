@@ -1,8 +1,8 @@
 package blue.heldplayer.pegen4j.unit;
 
-import blue.heldplayer.pegen4j.GrammarException;
+import blue.heldplayer.pegen4j.generator.GrammarException;
+import blue.heldplayer.pegen4j.parser.DiagnosticMessage;
 import blue.heldplayer.pegen4j.peg.ast.*;
-import blue.heldplayer.pegen4j.util.DiagnosticMessage;
 import blue.heldplayer.pegen4j.util.SccUtils;
 import blue.heldplayer.pegen4j.util.StringUtils;
 import org.jetbrains.annotations.NotNullByDefault;

@@ -1,4 +1,4 @@
-package blue.heldplayer.pegen4j;
+package blue.heldplayer.pegen4j.generator;
 
 public final class GrammarException extends RuntimeException {
 

@@ -1,1 +1,5 @@
 rootProject.name = 'pegen4j'
+
+include 'runtime'
+include 'generator'
+include 'gradlePlugin'

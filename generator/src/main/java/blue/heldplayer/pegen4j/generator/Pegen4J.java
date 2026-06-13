@@ -1,12 +1,10 @@
-package blue.heldplayer.pegen4j;
+package blue.heldplayer.pegen4j.generator;
 
-import blue.heldplayer.pegen4j.generator.JavaParserGenerator;
-import blue.heldplayer.pegen4j.generator.JavaVisitorGenerator;
+import blue.heldplayer.pegen4j.parser.DiagnosticMessage;
 import blue.heldplayer.pegen4j.peg.Pegen4JParser;
 import blue.heldplayer.pegen4j.peg.Pegen4JParserAstBuilder;
 import blue.heldplayer.pegen4j.peg.ast.Grammar;
 import blue.heldplayer.pegen4j.unit.GrammarUnit;
-import blue.heldplayer.pegen4j.util.DiagnosticMessage;
 import org.apache.commons.cli.*;
 import org.apache.commons.cli.help.HelpFormatter;
 

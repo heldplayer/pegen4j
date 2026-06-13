@@ -3,7 +3,6 @@ package blue.heldplayer.pegen4j.parser;
 import blue.heldplayer.pegen4j.parser.node.BaseNode;
 import blue.heldplayer.pegen4j.parser.node.PatternTokenNode;
 import blue.heldplayer.pegen4j.parser.node.StringTokenNode;
-import blue.heldplayer.pegen4j.util.DiagnosticMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

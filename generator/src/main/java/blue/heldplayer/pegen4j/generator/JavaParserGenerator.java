@@ -1,7 +1,5 @@
 package blue.heldplayer.pegen4j.generator;
 
-import blue.heldplayer.pegen4j.Constants;
-import blue.heldplayer.pegen4j.GrammarException;
 import blue.heldplayer.pegen4j.peg.ast.Item;
 import blue.heldplayer.pegen4j.unit.AltUnit;
 import blue.heldplayer.pegen4j.unit.GrammarUnit;
