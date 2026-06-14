@@ -1,5 +1,6 @@
 package blue.heldplayer.pegen4j.parser.node;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 
 public sealed class StringTokenNode extends ParseNode permits PatternTokenNode {
@@ -25,7 +26,7 @@ public sealed class StringTokenNode extends ParseNode permits PatternTokenNode {
 
   @Override
   public String toString() {
-    return this.string;
+    return '"' + StringEscapeUtils.escapeJava(this.string) + '"';
   }
 
 }
