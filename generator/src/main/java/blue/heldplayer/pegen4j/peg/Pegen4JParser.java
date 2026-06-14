@@ -13,13 +13,13 @@ import java.util.ArrayList;
 
 @SuppressWarnings("ALL")
 public class Pegen4JParser extends AbstractParser {
-  public static final TokenType NAME = new TokenType("NAME", "(?i)[a-z_][a-z0-9_]*");
-  public static final TokenType STRING = new TokenType("STRING", "'(?:[^'\\n\\r\\\\]|\\\\[tbnrf'\"\\\\])+'|\"(?:[^\"\\n\\r\\\\]|\\\\[tbnrf'\"\\\\])+\"");
-  public static final TokenType PATTERN = new TokenType("PATTERN", "\\/((?:[^\\r\\n\\[/\\\\]|\\\\.|\\[(?:[^\\r\\n\\]\\\\]|\\\\.)*\\])+)\\/");
-  public static final TokenType TYPE = new TokenType("TYPE", "\\[[^\\[\\]]*\\]");
-  public static final TokenType ACTION = new TokenType("ACTION", "\\{[^{}]*\\}");
-  public static final TokenType WS = new TokenType("WS", "\\s+");
-  public static final TokenType COMMENT = new TokenType("COMMENT", "\\/\\/.*?(?:\\n|$)");
+  public static final TokenType NAME = new TokenType("NAME", "(?i)[a-z_][a-z0-9_]*", false);
+  public static final TokenType STRING = new TokenType("STRING", "'(?:[^'\\n\\r\\\\]|\\\\[tbnrf'\"\\\\])+'|\"(?:[^\"\\n\\r\\\\]|\\\\[tbnrf'\"\\\\])+\"", false);
+  public static final TokenType PATTERN = new TokenType("PATTERN", "\\/((?:[^\\r\\n\\[/\\\\]|\\\\.|\\[(?:[^\\r\\n\\]\\\\]|\\\\.)*\\])+)\\/", false);
+  public static final TokenType TYPE = new TokenType("TYPE", "\\[[^\\[\\]]*\\]", false);
+  public static final TokenType ACTION = new TokenType("ACTION", "\\{[^{}]*\\}", false);
+  public static final TokenType WS = new TokenType("WS", "\\s+", false);
+  public static final TokenType COMMENT = new TokenType("COMMENT", "\\/\\/.*?(?:\\n|$)", false);
 
   public static final TokenType[] TOKENS = new TokenType[]{NAME, STRING, PATTERN, TYPE, ACTION};
   public static final TokenType[] IGNORED_TOKENS = new TokenType[]{WS, COMMENT};
@@ -28,7 +28,7 @@ public class Pegen4JParser extends AbstractParser {
   public static final String[] SYNC_TOKENS = new String[]{";"};
 
   public Pegen4JParser(URI sourceUri, CharSequence sourceString) {
-    super(sourceUri, sourceString, TOKENS, IGNORED_TOKENS, KEYWORDS, SOFT_KEYWORDS);
+    super(sourceUri, sourceString, TOKENS, IGNORED_TOKENS, KEYWORDS, SOFT_KEYWORDS, false);
   }
 
   public GrammarUnitContext grammar_unit() {

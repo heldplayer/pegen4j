@@ -19,14 +19,15 @@ public class AbstractParser {
   private final TokenType[] tokens;
   private final TokenType[] ignoredTokens;
   private final Set<String> keywordLiterals;
+  private final boolean caseInsensitive;
 
   private final List<DiagnosticMessage> parseErrors = new ArrayList<>();
 
-  private int position;
-  private int line;
-  private int column;
+  private int position = 0;
+  private int line = 1;
+  private int column = 0;
 
-  public AbstractParser(URI sourceUri, @NotNull CharSequence sourceString, @NotNull TokenType @NotNull [] tokens, @NotNull TokenType @NotNull [] ignoredTokens, @NotNull String @NotNull [] keywords, @NotNull String @NotNull [] softKeywords) {
+  public AbstractParser(URI sourceUri, @NotNull CharSequence sourceString, @NotNull TokenType @NotNull [] tokens, @NotNull TokenType @NotNull [] ignoredTokens, @NotNull String @NotNull [] keywords, @NotNull String @NotNull [] softKeywords, boolean caseInsensitive) {
     this.sourceUri = sourceUri;
     this.sourceString = sourceString;
     this.length = sourceString.length();
@@ -36,10 +37,9 @@ public class AbstractParser {
     Collections.addAll(keywordLiterals, keywords);
     Collections.addAll(keywordLiterals, softKeywords);
     this.keywordLiterals = Collections.unmodifiableSet(keywordLiterals);
-    this.position = 0;
-    this.line = 1;
-    this.column = 0;
+    this.caseInsensitive = caseInsensitive;
   }
+
 
   public static final class State {
     private final int position;
@@ -193,7 +193,6 @@ public class AbstractParser {
       }
     } while (skipped);
   }
-  // endregion
 
   @Nullable
   protected final PatternTokenNode expect(@NotNull TokenType token) {
@@ -224,7 +223,10 @@ public class AbstractParser {
     int strEndPos = this.position + str.length();
     if (strEndPos <= this.length) {
       var subStr = this.sourceString.subSequence(this.position, strEndPos);
-      if (str.contentEquals(subStr) && (
+      if ((this.caseInsensitive
+        ? String.CASE_INSENSITIVE_ORDER.compare(str, subStr.toString()) == 0
+        : str.contentEquals(subStr)
+      ) && (
         // Check that our string match does not accidentally match a partial word
         // e.g. expecting "in" should not match "index"
         strEndPos + 1 > this.length
@@ -256,6 +258,7 @@ public class AbstractParser {
     this.recordFailure("<EOF>");
     return false;
   }
+  // endregion
 
   // region Memoization
   private final Map<CacheKey, CacheEntry> memoizationCache = new HashMap<>();

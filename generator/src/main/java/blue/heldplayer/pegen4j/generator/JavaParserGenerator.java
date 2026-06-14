@@ -102,7 +102,8 @@ public final class JavaParserGenerator {
       out.line(
         "public static final TokenType " + name + " = new TokenType("
           + StringUtils.toJavaString(name) + ", "
-          + StringUtils.toJavaString(entry.getValue())
+          + StringUtils.toJavaString(entry.getValue()) + ", "
+          + this.grammarUnit.caseInsensitive
           + ");"
       );
       if (this.grammarUnit.ignoredTokenNames.contains(name)) {
@@ -123,7 +124,7 @@ public final class JavaParserGenerator {
     out.line();
     out.line("public " + this.outputClassName + "(URI sourceUri, CharSequence sourceString) {");
     try (var _ = out.withIndentation()) {
-      out.line("super(sourceUri, sourceString, TOKENS, IGNORED_TOKENS, KEYWORDS, SOFT_KEYWORDS);");
+      out.line("super(sourceUri, sourceString, TOKENS, IGNORED_TOKENS, KEYWORDS, SOFT_KEYWORDS, " + this.grammarUnit.caseInsensitive + ");");
     }
     out.line("}");
   }

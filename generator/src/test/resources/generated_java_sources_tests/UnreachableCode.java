@@ -18,7 +18,7 @@ public class UnreachableCode extends AbstractParser {
   public static final String[] SOFT_KEYWORDS = new String[]{};
 
   public UnreachableCode(URI sourceUri, CharSequence sourceString) {
-    super(sourceUri, sourceString, TOKENS, IGNORED_TOKENS, KEYWORDS, SOFT_KEYWORDS);
+    super(sourceUri, sourceString, TOKENS, IGNORED_TOKENS, KEYWORDS, SOFT_KEYWORDS, false);
   }
 
   public RuleOptContext rule_opt() {

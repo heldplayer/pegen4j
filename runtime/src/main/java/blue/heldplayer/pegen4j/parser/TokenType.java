@@ -11,9 +11,9 @@ public final class TokenType {
   private final String name;
   private final Pattern pattern;
 
-  public TokenType(String name, @Language("RegExp") String regex) {
+  public TokenType(String name, @Language("RegExp") String regex, Boolean caseInsensitive) {
     this.name = name;
-    this.pattern = Pattern.compile(regex);
+    this.pattern = Pattern.compile(regex, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
   }
 
   public String name() {

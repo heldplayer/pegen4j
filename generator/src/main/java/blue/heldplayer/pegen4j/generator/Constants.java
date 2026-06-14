@@ -2,6 +2,8 @@ package blue.heldplayer.pegen4j.generator;
 
 public final class Constants {
 
+  public static final String OPTION_CASE_INSENSITIVE = "case_insensitive";
+
   public static final String OPTION_JAVA_CLASS_NAME = "class_name";
   public static final String OPTION_JAVA_PACKAGE = "package";
   public static final String OPTION_JAVA_IMPORT = "import";

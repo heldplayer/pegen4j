@@ -1,5 +1,6 @@
 package blue.heldplayer.pegen4j.unit;
 
+import blue.heldplayer.pegen4j.generator.Constants;
 import blue.heldplayer.pegen4j.generator.GrammarException;
 import blue.heldplayer.pegen4j.parser.DiagnosticMessage;
 import blue.heldplayer.pegen4j.peg.ast.*;
@@ -32,6 +33,8 @@ public final class GrammarUnit {
   public final List<String> recoverTokens = new ArrayList<>();
 
   public final Map<String, List<String>> optionValuesByName = new HashMap<>();
+
+  public boolean caseInsensitive = false;
 
   private final List<DiagnosticMessage> problems = new ArrayList<>();
 
@@ -91,6 +94,16 @@ public final class GrammarUnit {
             }
           }
         }
+      }
+    }
+
+    {
+      var caseInsensitiveOptions = this.optionValuesByName.getOrDefault(Constants.OPTION_CASE_INSENSITIVE, List.of());
+      if (caseInsensitiveOptions.size() > 1) {
+        throw new GrammarException("Option " + Constants.OPTION_CASE_INSENSITIVE + " can only be provided once");
+      }
+      for (var option : caseInsensitiveOptions) {
+        this.caseInsensitive = Boolean.parseBoolean(option);
       }
     }
 
