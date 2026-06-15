@@ -25,7 +25,7 @@ public class AbstractParser {
 
   private int position = 0;
   private int line = 1;
-  private int column = 0;
+  private int column = 1;
 
   public AbstractParser(URI sourceUri, @NotNull CharSequence sourceString, @NotNull TokenType @NotNull [] tokens, @NotNull TokenType @NotNull [] ignoredTokens, @NotNull String @NotNull [] keywords, @NotNull String @NotNull [] softKeywords, boolean caseInsensitive) {
     this.sourceUri = sourceUri;
@@ -85,7 +85,7 @@ public class AbstractParser {
   // region Error handling
   private int furthestPosition = -1;
   private int furthestLine = 1;
-  private int furthestColumn = 0;
+  private int furthestColumn = 1;
   private final Set<String> expectedTokens = new LinkedHashSet<>();
 
   private void recordFailure(String expectation) {
@@ -122,7 +122,7 @@ public class AbstractParser {
     }
     this.furthestPosition = -1;
     this.furthestLine = 1;
-    this.furthestColumn = 0;
+    this.furthestColumn = 1;
     this.expectedTokens.clear();
     this.synchronize(syncTokens);
     this.pendingRecovery = true;
@@ -166,7 +166,7 @@ public class AbstractParser {
 
     for (int i = 0; i < seq.length(); i++) {
       if (seq.charAt(i) == '\n') {
-        column = 0;
+        column = 1;
         ++line;
       } else {
         ++column;

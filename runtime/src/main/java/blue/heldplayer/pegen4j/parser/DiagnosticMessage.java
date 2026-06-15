@@ -91,7 +91,7 @@ public final class DiagnosticMessage {
         var startChar = slice.columnStart() == -1 ? "~" : "^";
         var colorPre = outputColor ? COLOR_GREEN : "";
         var colorPost = outputColor ? COLOR_RESET : "";
-        return " " + slice.text() + "\n " + " ".repeat(startPos - 1)
+        return " " + slice.text() + "\n " + " ".repeat(startPos)
           + colorPre + startChar + "~".repeat(slice.columnEnd() - startPos) + colorPost;
       }).collect(Collectors.joining("\n"));
   }
@@ -103,7 +103,7 @@ public final class DiagnosticMessage {
     var len = source.length();
     var p = Math.clamp(location.startPos(), 0, len);
     var result = new ArrayList<LineSlice>();
-    while (p < location.endPos() && p < len) {
+    while (p <= location.endPos() && p < len) {
       var lineStart = p;
       while (lineStart > 0 && source.charAt(lineStart - 1) != '\n') {
         lineStart--;
@@ -114,7 +114,7 @@ public final class DiagnosticMessage {
       }
       var nextP = lineEnd + 1;
       var line = source.subSequence(lineStart, lineEnd).toString().stripTrailing();
-      result.add(new LineSlice(line, result.isEmpty() ? p - lineStart : -1, nextP < location.endPos() ? line.length() : lineEnd - lineStart));
+      result.add(new LineSlice(line, result.isEmpty() ? p - lineStart : -1, nextP < location.endPos() ? line.length() : location.endPos() - lineStart));
       p = nextP;
     }
     return result;
