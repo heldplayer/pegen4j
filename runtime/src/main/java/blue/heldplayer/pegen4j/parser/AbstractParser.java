@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.net.URI;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AbstractParser {
@@ -38,6 +39,8 @@ public class AbstractParser {
     Collections.addAll(keywordLiterals, softKeywords);
     this.keywordLiterals = Collections.unmodifiableSet(keywordLiterals);
     this.caseInsensitive = caseInsensitive;
+
+    this.keywordEndGuardMatcher = KEYWORD_END_GUARD_PATTERN.matcher(this.sourceString);
   }
 
 
@@ -137,7 +140,7 @@ public class AbstractParser {
       for (String sync : syncTokens) {
         int end = this.position + sync.length();
         if (end <= this.length && sync.contentEquals(this.sourceString.subSequence(this.position, end))) {
-          this.textProcessed(this.sourceString.subSequence(this.position, end));
+          this.textProcessed(sync.length());
           return;
         }
       }
@@ -147,46 +150,27 @@ public class AbstractParser {
 
   private void advanceOneToken() {
     for (TokenType token : this.tokens) {
-      var matcher = token.pattern().matcher(this.sourceString.subSequence(this.position, this.length));
+      var matcher = this.getMatcher(token.pattern()).region(this.position, this.length);
       if (matcher.lookingAt() && matcher.end() > 0) {
-        this.textProcessed(matcher.group());
+        this.textProcessed(matcher);
         return;
       }
     }
-    this.textProcessed(this.sourceString.subSequence(this.position, this.position + 1));
+    this.textProcessed(1);
   }
   // endregion
   // endregion
 
   // region Parsing
-  private void textProcessed(CharSequence seq) {
-    var position = this.position + seq.length();
-    var line = this.line;
-    var column = this.column;
-
-    for (int i = 0; i < seq.length(); i++) {
-      if (seq.charAt(i) == '\n') {
-        column = 1;
-        ++line;
-      } else {
-        ++column;
-      }
-    }
-
-    this.position = position;
-    this.line = line;
-    this.column = column;
-  }
-
   private void skipIgnoredTokens() {
     boolean skipped;
     do {
       skipped = false;
 
       for (var ignored : this.ignoredTokens) {
-        var matcher = ignored.pattern().matcher(this.sourceString.subSequence(this.position, this.length));
+        var matcher = this.getMatcher(ignored.pattern()).region(this.position, this.length);
         if (matcher.lookingAt()) {
-          this.textProcessed(matcher.group());
+          this.textProcessed(matcher);
           skipped = true;
           break;
         }
@@ -197,12 +181,12 @@ public class AbstractParser {
   @Nullable
   protected final PatternTokenNode expect(@NotNull TokenType token) {
     this.skipIgnoredTokens();
-    var matcher = token.pattern().matcher(this.sourceString.subSequence(this.position, this.length));
+    var matcher = this.getMatcher(token.pattern()).region(this.position, this.length);
     if (matcher.lookingAt()) {
       var startPos = this.position;
       var startLine = this.line;
       var startColumn = this.column;
-      this.textProcessed(matcher.group());
+      this.textProcessed(matcher);
       var endPos = this.position;
       var endLine = this.line;
       var endColumn = this.column;
@@ -216,31 +200,28 @@ public class AbstractParser {
   }
 
   private static final Pattern KEYWORD_END_GUARD_PATTERN = Pattern.compile("\\w\\w");
+  private final Matcher keywordEndGuardMatcher;
 
   @Nullable
   protected final StringTokenNode expect(@NotNull String str) {
     this.skipIgnoredTokens();
     int strEndPos = this.position + str.length();
     if (strEndPos <= this.length) {
-      var subStr = this.sourceString.subSequence(this.position, strEndPos);
-      if ((this.caseInsensitive
-        ? String.CASE_INSENSITIVE_ORDER.compare(str, subStr.toString()) == 0
-        : str.contentEquals(subStr)
-      ) && (
+      if (this.matchesAt(this.position, str) && (
         // Check that our string match does not accidentally match a partial word
         // e.g. expecting "in" should not match "index"
         strEndPos + 1 > this.length
-          || !KEYWORD_END_GUARD_PATTERN.matcher(this.sourceString.subSequence(strEndPos - 1, strEndPos + 1)).matches()
+          || !this.keywordEndGuardMatcher.region(strEndPos - 1, strEndPos + 1).matches()
       )) {
         var startPos = this.position;
         var startLine = this.line;
         var startColumn = this.column;
-        this.textProcessed(subStr);
+        this.textProcessed(str.length());
         var endPos = this.position;
         var endLine = this.line;
         var endColumn = this.column;
 
-        var result = new StringTokenNode(subStr.toString());
+        var result = new StringTokenNode(this.sourceString.subSequence(this.position, strEndPos).toString());
         result.setLocation(this.sourceUri, startPos, endPos, startLine, startColumn, endLine, endColumn);
         return result;
       }
@@ -257,6 +238,59 @@ public class AbstractParser {
     }
     this.recordFailure("<EOF>");
     return false;
+  }
+  // endregion
+
+  // region Parsing helpers
+  private void textProcessed(int length) {
+    var position = this.position + length;
+    var line = this.line;
+    var column = this.column;
+
+    for (int i = 0; i < length; i++) {
+      if (this.sourceString.charAt(this.position + i) == '\n') {
+        column = 1;
+        ++line;
+      } else {
+        ++column;
+      }
+    }
+
+    this.position = position;
+    this.line = line;
+    this.column = column;
+  }
+
+  private void textProcessed(Matcher matcher) {
+    assert matcher.start() == matcher.regionStart();
+    this.textProcessed(matcher.end() - matcher.start());
+  }
+
+  private final Map<Pattern, Matcher> matchers = new IdentityHashMap<>();
+
+  private Matcher getMatcher(Pattern pattern) {
+    return this.matchers.computeIfAbsent(pattern, p -> p.matcher(this.sourceString));
+  }
+
+  private boolean matchesAt(int startPos, @NotNull String str) {
+    for (var i = 0; i < str.length(); i++) {
+      var a = str.charAt(i);
+      var b = this.sourceString.charAt(startPos + i);
+      if (a == b) {
+        continue;
+      }
+      if (!this.caseInsensitive) {
+        return false;
+      }
+      if (
+        (a = Character.toUpperCase(a)) == (b = Character.toUpperCase(b))
+        || Character.toLowerCase(a) == Character.toLowerCase(b)
+      ) {
+        continue;
+      }
+      return false;
+    }
+    return true;
   }
   // endregion
 
