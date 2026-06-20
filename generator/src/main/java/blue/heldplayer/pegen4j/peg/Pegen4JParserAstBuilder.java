@@ -40,17 +40,17 @@ public class Pegen4JParserAstBuilder implements Pegen4JParserVisitor {
   public Meta visitMeta(MetaContext λ_ctx) {
     return switch (λ_ctx) {
       case MetaContext.Keyword λ_alt -> {
-        var STRING = λ_alt.STRING;
-        yield new Meta.Keyword(STRING);
+        var keywords = λ_alt.keywords;
+        yield new Meta.Keyword(keywords);
       }
       case MetaContext.Ignore λ_alt -> {
-        var NAME = λ_alt.NAME;
-        yield new Meta.Ignore(NAME);
+        var names = λ_alt.names;
+        yield new Meta.Ignore(names);
       }
       case MetaContext.Option λ_alt -> {
-        var NAME = λ_alt.NAME;
-        var STRING = λ_alt.STRING;
-        yield new Meta.Option(NAME, STRING);
+        var name = λ_alt.name;
+        var values = λ_alt.values;
+        yield new Meta.Option(name, values);
       }
       case MetaContext.Recover λ_alt -> {
         var tokens = λ_alt.tokens;

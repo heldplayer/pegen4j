@@ -102,42 +102,87 @@ public class Pegen4JParser extends AbstractParser {
   public MetaContext meta() {
     return super.memoized("meta", () -> {
       var λ_mark = super.mark();
-      // '@keyword' STRING { new Meta.Keyword(STRING) }
+      // '@keyword' keywords=','.STRING+ { new Meta.Keyword(keywords) }
       do {
         var λ_ctx = new MetaContext.Keyword();
         if (super.expect("@keyword") == null) break;
-        var λv_STRING = super.expect(Pegen4JParser.STRING);
-        if (λv_STRING == null) break;
-        λ_ctx.STRING = λv_STRING;
-        λ_ctx.add(λv_STRING);
+        var λv_keywords = new ArrayList<PatternTokenNode>();
+        var λf_keywords = super.expect(Pegen4JParser.STRING);
+        if (λf_keywords == null) break;
+        λv_keywords.add(λf_keywords);
+        λ_ctx.add(λf_keywords);
+        while (true) {
+          var λ_m = super.mark();
+          var λs_keywords = super.expect(",");
+          if (λs_keywords == null) { super.reset(λ_m); break; }
+          var λe_keywords = super.expect(Pegen4JParser.STRING);
+          if (λe_keywords == null) {
+            if (super.pendingRecovery) { super.pendingRecovery = false; continue; }
+            super.reset(λ_m);
+            break;
+          }
+          λv_keywords.add(λe_keywords);
+          λ_ctx.add(λe_keywords);
+        }
+        λ_ctx.keywords = λv_keywords;
         super.finish(λ_ctx, λ_mark);
         return λ_ctx;
       } while (false);
       if (!super.pendingRecovery) super.reset(λ_mark);
-      // '@ignore' NAME { new Meta.Ignore(NAME) }
+      // '@ignore' names=','.NAME+ { new Meta.Ignore(names) }
       do {
         var λ_ctx = new MetaContext.Ignore();
         if (super.expect("@ignore") == null) break;
-        var λv_NAME = super.expect(Pegen4JParser.NAME);
-        if (λv_NAME == null) break;
-        λ_ctx.NAME = λv_NAME;
-        λ_ctx.add(λv_NAME);
+        var λv_names = new ArrayList<PatternTokenNode>();
+        var λf_names = super.expect(Pegen4JParser.NAME);
+        if (λf_names == null) break;
+        λv_names.add(λf_names);
+        λ_ctx.add(λf_names);
+        while (true) {
+          var λ_m = super.mark();
+          var λs_names = super.expect(",");
+          if (λs_names == null) { super.reset(λ_m); break; }
+          var λe_names = super.expect(Pegen4JParser.NAME);
+          if (λe_names == null) {
+            if (super.pendingRecovery) { super.pendingRecovery = false; continue; }
+            super.reset(λ_m);
+            break;
+          }
+          λv_names.add(λe_names);
+          λ_ctx.add(λe_names);
+        }
+        λ_ctx.names = λv_names;
         super.finish(λ_ctx, λ_mark);
         return λ_ctx;
       } while (false);
       if (!super.pendingRecovery) super.reset(λ_mark);
-      // '@option' NAME STRING { new Meta.Option(NAME, STRING) }
+      // '@option' name=NAME values=','.STRING+ { new Meta.Option(name, values) }
       do {
         var λ_ctx = new MetaContext.Option();
         if (super.expect("@option") == null) break;
-        var λv_NAME = super.expect(Pegen4JParser.NAME);
-        if (λv_NAME == null) break;
-        λ_ctx.NAME = λv_NAME;
-        λ_ctx.add(λv_NAME);
-        var λv_STRING = super.expect(Pegen4JParser.STRING);
-        if (λv_STRING == null) break;
-        λ_ctx.STRING = λv_STRING;
-        λ_ctx.add(λv_STRING);
+        var λv_name = super.expect(Pegen4JParser.NAME);
+        if (λv_name == null) break;
+        λ_ctx.name = λv_name;
+        λ_ctx.add(λv_name);
+        var λv_values = new ArrayList<PatternTokenNode>();
+        var λf_values = super.expect(Pegen4JParser.STRING);
+        if (λf_values == null) break;
+        λv_values.add(λf_values);
+        λ_ctx.add(λf_values);
+        while (true) {
+          var λ_m = super.mark();
+          var λs_values = super.expect(",");
+          if (λs_values == null) { super.reset(λ_m); break; }
+          var λe_values = super.expect(Pegen4JParser.STRING);
+          if (λe_values == null) {
+            if (super.pendingRecovery) { super.pendingRecovery = false; continue; }
+            super.reset(λ_m);
+            break;
+          }
+          λv_values.add(λe_values);
+          λ_ctx.add(λe_values);
+        }
+        λ_ctx.values = λv_values;
         super.finish(λ_ctx, λ_mark);
         return λ_ctx;
       } while (false);

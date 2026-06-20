@@ -11,8 +11,7 @@ ACTION: /\{[^{}]*\}/
 WS: /\s+/
 COMMENT: /\/\/.*?(?:\n|$)/
 
-@ignore WS
-@ignore COMMENT
+@ignore WS, COMMENT
 @recover ';'
 
 grammar_unit[Grammar]: grammar_elements=grammar_element* $ { new Grammar(grammar_elements) } ;
@@ -24,9 +23,9 @@ grammar_element[GrammarElement]
   ;
 
 meta[Meta]
-  : '@keyword' STRING { new Meta.Keyword(STRING) } # Keyword
-  | '@ignore' NAME { new Meta.Ignore(NAME) } # Ignore
-  | '@option' NAME STRING { new Meta.Option(NAME, STRING) } # Option
+  : '@keyword' keywords=','.STRING+ { new Meta.Keyword(keywords) } # Keyword
+  | '@ignore' names=','.NAME+ { new Meta.Ignore(names) } # Ignore
+  | '@option' name=NAME values=','.STRING+ { new Meta.Option(name, values) } # Option
   | '@recover' tokens=STRING+ { new Meta.Recover(tokens) } # Recover
   ;
 

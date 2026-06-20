@@ -20,30 +20,30 @@ public sealed abstract class Meta extends GrammarElement {
   }
 
   public static final class Keyword extends Meta {
-    public final StringTokenNode value;
+    public final List<? extends StringTokenNode> values;
 
-    public Keyword(StringTokenNode value) {
-      this.value = value;
+    public Keyword(List<? extends StringTokenNode> values) {
+      this.values = values;
     }
 
   }
 
   public static final class Ignore extends Meta {
-    public final StringTokenNode name;
+    public final List<? extends StringTokenNode> names;
 
-    public Ignore(StringTokenNode name) {
-      this.name = name;
+    public Ignore(List<? extends StringTokenNode> names) {
+      this.names = names;
     }
 
   }
 
   public static final class Option extends Meta {
     public final StringTokenNode name;
-    public final StringTokenNode value;
+    public final List<? extends StringTokenNode> values;
 
-    public Option(StringTokenNode name, StringTokenNode value) {
+    public Option(StringTokenNode name, List<? extends StringTokenNode> values) {
       this.name = name;
-      this.value = value;
+      this.values = values;
     }
 
   }

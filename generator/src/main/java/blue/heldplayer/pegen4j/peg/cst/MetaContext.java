@@ -8,16 +8,16 @@ import java.util.List;
 public sealed abstract class MetaContext extends blue.heldplayer.pegen4j.parser.node.RuleContext {
 
   public static final class Keyword extends MetaContext {
-    public PatternTokenNode STRING;
+    public List<PatternTokenNode> keywords;
   }
 
   public static final class Ignore extends MetaContext {
-    public PatternTokenNode NAME;
+    public List<PatternTokenNode> names;
   }
 
   public static final class Option extends MetaContext {
-    public PatternTokenNode NAME;
-    public PatternTokenNode STRING;
+    public PatternTokenNode name;
+    public List<PatternTokenNode> values;
   }
 
   public static final class Recover extends MetaContext {

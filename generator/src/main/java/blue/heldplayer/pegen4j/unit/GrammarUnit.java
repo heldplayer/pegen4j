@@ -1,8 +1,9 @@
-package blue.heldplayer.pegen4j.unit;
+ package blue.heldplayer.pegen4j.unit;
 
 import blue.heldplayer.pegen4j.generator.Constants;
 import blue.heldplayer.pegen4j.generator.GrammarException;
 import blue.heldplayer.pegen4j.parser.DiagnosticMessage;
+import blue.heldplayer.pegen4j.parser.node.StringTokenNode;
 import blue.heldplayer.pegen4j.peg.ast.*;
 import blue.heldplayer.pegen4j.util.SccUtils;
 import blue.heldplayer.pegen4j.util.StringUtils;
@@ -76,8 +77,38 @@ public final class GrammarUnit {
       switch (element) {
         case TokenDefinition _ -> {
         }
-        case Meta.Ignore ignore -> this.ignoredTokenNames.add(ignore.name.string());
-        case Meta.Keyword keyword -> this.keywords.add(keyword.value.unquoted());
+        case Meta.Ignore ignore ->
+          this.ignoredTokenNames.addAll(ignore.names.stream().map(StringTokenNode::string).toList());
+        case Meta.Keyword keyword -> {
+          for (var keywordValue : keyword.values) {
+            var unquoted = keywordValue.unquoted();
+            if (keywordValue.string().startsWith("'")) {
+              if (!KEYWORD_PATTERN.matcher(unquoted).matches()) {
+                this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.ERROR, keywordValue.toSourceLocation(), "not a valid keyword: " + unquoted));
+                continue;
+              }
+              if (this.keywords.contains(unquoted)) {
+                this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.WARNING, keywordValue.toSourceLocation(), "keyword specified twice: " + unquoted));
+              } else if (this.softKeywords.contains(unquoted)) {
+                this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.ERROR, keywordValue.toSourceLocation(), "keyword specified as soft keyword already: " + unquoted));
+              }
+              this.keywords.add(unquoted);
+            } else if (keywordValue.string().startsWith("\"")) {
+              if (!KEYWORD_PATTERN.matcher(unquoted).matches()) {
+                this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.ERROR, keywordValue.toSourceLocation(), "not a valid soft keyword: " + unquoted));
+                continue;
+              }
+              if (this.softKeywords.contains(unquoted)) {
+                this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.WARNING, keywordValue.toSourceLocation(), "soft keyword specified twice: " + unquoted));
+              } else if (this.keywords.contains(unquoted)) {
+                this.problems.add(new DiagnosticMessage(DiagnosticMessage.Severity.ERROR, keywordValue.toSourceLocation(), "soft keyword specified as keyword already: " + unquoted));
+              }
+              this.softKeywords.add(unquoted);
+            } else {
+              throw new IllegalStateException();
+            }
+          }
+        }
         case Meta.Recover recover -> {
           for (var token : recover.tokens) {
             this.recoverTokens.add(token.unquoted());
@@ -85,7 +116,7 @@ public final class GrammarUnit {
         }
         case Meta.Option option -> this.optionValuesByName
           .computeIfAbsent(option.name.string(), _ -> new ArrayList<>())
-          .add(option.value.unquoted());
+          .addAll(option.values.stream().map(StringTokenNode::unquoted).toList());
         case RuleDefinition rule -> {
           this.ruleByName.put(rule.name.string(), buildRule(rule));
           for (Alt alt : rule.alts) {
@@ -214,6 +245,8 @@ public final class GrammarUnit {
             this.keywords.add(value);
           } else if (raw.startsWith("\"")) {
             this.softKeywords.add(value);
+          } else {
+            throw new IllegalStateException();
           }
         }
       }
