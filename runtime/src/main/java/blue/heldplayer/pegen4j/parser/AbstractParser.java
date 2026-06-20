@@ -20,6 +20,7 @@ public class AbstractParser {
   private final TokenType[] tokens;
   private final TokenType[] ignoredTokens;
   private final Set<String> keywordLiterals;
+  private final Set<String> softKeywordLiterals;
   private final boolean caseInsensitive;
 
   private final List<DiagnosticMessage> parseErrors = new ArrayList<>();
@@ -34,10 +35,15 @@ public class AbstractParser {
     this.length = sourceString.length();
     this.tokens = tokens;
     this.ignoredTokens = ignoredTokens;
-    var keywordLiterals = new HashSet<String>(keywords.length + softKeywords.length);
-    Collections.addAll(keywordLiterals, keywords);
-    Collections.addAll(keywordLiterals, softKeywords);
-    this.keywordLiterals = Collections.unmodifiableSet(keywordLiterals);
+    if (caseInsensitive) {
+      this.keywordLiterals = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+      this.keywordLiterals.addAll(List.of(keywords));
+      this.softKeywordLiterals = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+      this.softKeywordLiterals.addAll(List.of(softKeywords));
+    } else {
+      this.keywordLiterals = Set.of(keywords);
+      this.softKeywordLiterals = Set.of(softKeywords);
+    }
     this.caseInsensitive = caseInsensitive;
 
     this.keywordEndGuardMatcher = KEYWORD_END_GUARD_PATTERN.matcher(this.sourceString);
@@ -183,6 +189,12 @@ public class AbstractParser {
     this.skipIgnoredTokens();
     var matcher = this.getMatcher(token.pattern()).region(this.position, this.length);
     if (matcher.lookingAt()) {
+      var tokenText = matcher.group();
+      if (this.keywordLiterals.contains(tokenText)) {
+        this.recordFailure(token.name());
+        return null;
+      }
+
       var startPos = this.position;
       var startLine = this.line;
       var startColumn = this.column;
@@ -284,7 +296,7 @@ public class AbstractParser {
       }
       if (
         (a = Character.toUpperCase(a)) == (b = Character.toUpperCase(b))
-        || Character.toLowerCase(a) == Character.toLowerCase(b)
+          || Character.toLowerCase(a) == Character.toLowerCase(b)
       ) {
         continue;
       }
