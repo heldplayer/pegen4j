@@ -12,9 +12,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("pegen4j") {
-            id = "blue.heldplayer.pegen4j"
-            implementationClass = "blue.heldplayer.pegen4j.gradle.Pegen4JPlugin"
+        create('pegen4j') {
+            id = 'blue.heldplayer.pegen4j'
+            implementationClass = 'blue.heldplayer.pegen4j.gradle.Pegen4JPlugin'
         }
     }
 }
